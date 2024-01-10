@@ -1,5 +1,7 @@
 ﻿
 using Entities;
+using EntityFrameworkCoreMock;
+using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using ServiceContracts;
 using ServiceContracts.DTO;
@@ -14,8 +16,15 @@ namespace CRUDXTests
 
         public CountriesServiceTest()
         {
-            _countriesServices = new CountriesServices(new PersonsDbContext
-                (new DbContextOptionsBuilder<PersonsDbContext>().Options));
+            var countriesInitialData = new List<Country>() { };
+
+            DbContextMock<ApplicationDbContext> dbContextMock = new DbContextMock<ApplicationDbContext>(
+                new DbContextOptionsBuilder<ApplicationDbContext>().Options);
+
+            ApplicationDbContext dbContext = dbContextMock.Object;
+            dbContextMock.CreateDbSetMock(temp => temp.Countries, countriesInitialData);
+
+            _countriesServices = new CountriesServices(dbContext);
         }
 
         #region AddCountry
@@ -28,8 +37,10 @@ namespace CRUDXTests
 
 
             //Assert     If no argument supplied exception
-            await Assert.ThrowsAsync<ArgumentNullException>(async () =>  
-            await _countriesServices.AddCountry(request));    //Act
+            Func<Task> action = (async () =>  
+            await _countriesServices.AddCountry(request));
+            
+            await action.Should().ThrowAsync<ArgumentNullException>();
         }
 
 
@@ -41,8 +52,10 @@ namespace CRUDXTests
 
 
             //Assert       Some value is wrong in the argument exception
-            await Assert.ThrowsAsync<ArgumentException>(async() =>
-            await _countriesServices.AddCountry(request));    //Act
+            Func<Task> action = (async () =>
+            await _countriesServices.AddCountry(request));
+
+            await action.Should().ThrowAsync<ArgumentException>();
         }
 
         [Fact]
@@ -53,13 +66,14 @@ namespace CRUDXTests
             CountryAddRequest? request2 = new CountryAddRequest() { CountryName = "USA" };
 
 
+            await _countriesServices.AddCountry(request1);
             //Assert
-            await Assert.ThrowsAsync<ArgumentException>(async() =>
-            {
-                //Act
-                await _countriesServices.AddCountry(request1);
+            Func<Task> action = (async() =>
+            { 
                 await _countriesServices.AddCountry(request2);
-            });    
+            });
+
+            await action.Should().ThrowAsync<ArgumentException>();
         }
 
 
@@ -76,8 +90,8 @@ namespace CRUDXTests
             List<CountryResponse> countries_from_getcountrymethod = await _countriesServices.GetAllCountries();
 
             //Assert
-            Assert.True(response.CountryId != Guid.Empty);
-            Assert.Contains(response, countries_from_getcountrymethod);
+            response.CountryId.Should().NotBe(Guid.Empty);
+            countries_from_getcountrymethod.Should().Contain(response);
 
 
         }
@@ -95,7 +109,7 @@ namespace CRUDXTests
             List<CountryResponse> actual_country_response_list = await _countriesServices.GetAllCountries();
 
             //Assert
-            Assert.Empty(actual_country_response_list);
+            actual_country_response_list.Should().BeEmpty();
         }
 
         [Fact]
@@ -117,10 +131,12 @@ namespace CRUDXTests
 
             List<CountryResponse> actualCountryResponseList = await _countriesServices.GetAllCountries();
 
-            foreach(CountryResponse expected_country in countryresponse_list)
+            /*foreach(CountryResponse expected_country in countryresponse_list)
             {
                 Assert.Contains(expected_country, actualCountryResponseList);
-            }
+            }*/
+
+            actualCountryResponseList.Should().BeEquivalentTo(countryresponse_list);
         }
 
         #endregion
@@ -132,7 +148,7 @@ namespace CRUDXTests
         {
             Guid? countryId = null;
             CountryResponse? response = await _countriesServices.GetCountryByCountryId(countryId);
-            Assert.Null(response);
+            response.Should().BeNull();
         }
 
         [Fact]
@@ -142,7 +158,7 @@ namespace CRUDXTests
             CountryAddRequest country_request = new CountryAddRequest { CountryName="India"};
             CountryResponse country_response = await _countriesServices.AddCountry(country_request);
             CountryResponse? country_response_from_getByCountryId=await _countriesServices.GetCountryByCountryId(country_response.CountryId);
-            Assert.Equal(country_response, country_response_from_getByCountryId);
+            country_response_from_getByCountryId.Should().Be(country_response);
         }
 
         #endregion

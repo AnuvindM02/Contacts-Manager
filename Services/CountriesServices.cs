@@ -10,9 +10,9 @@ namespace Services
     public class CountriesServices : ICountriesServices
     {
 
-        private readonly PersonsDbContext _db;
+        private readonly ApplicationDbContext _db;
 
-        public CountriesServices(PersonsDbContext personsDbContext)
+        public CountriesServices(ApplicationDbContext personsDbContext)
         {
 
             _db = personsDbContext;
@@ -37,7 +37,7 @@ namespace Services
             country.CountryID = Guid.NewGuid();
 
 
-            await _db.AddAsync(country);
+            await _db.Countries.AddAsync(country);
             await _db.SaveChangesAsync();
 
             return country.ToCountryResponse();

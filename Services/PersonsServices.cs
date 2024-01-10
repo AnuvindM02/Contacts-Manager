@@ -20,10 +20,10 @@ namespace Services
 {
     public class PersonsServices : IPersonsServices
     {
-        private readonly PersonsDbContext _db;
+        private readonly ApplicationDbContext _db;
         private readonly ICountriesServices _countriesServices;
 
-        public PersonsServices(PersonsDbContext personsDbContext,ICountriesServices countriesServices)
+        public PersonsServices(ApplicationDbContext personsDbContext,ICountriesServices countriesServices)
         {
 
             _db = personsDbContext;
@@ -50,10 +50,11 @@ namespace Services
             Person person = personAddRequest.ToPerson();
             person.PersonID = Guid.NewGuid();
 
-            /*_db.Add(person);
-            _db.SaveChanges();*/
+            _db.Persons.Add(person);
+            _db.SaveChanges();
 
-            await _db.sp_InsertPersonAsync(person);
+            /*            await _db.sp_InsertPersonAsync(person);
+            */
             return person.ToPersonResponse();
             
 
@@ -201,19 +202,19 @@ namespace Services
                 throw new ArgumentException("Given person id doesn't exist");
             }
 
-            //update all details
-            /*matchingPerson.PersonName = personUpdateRequest.PersonName;
+            //update all details -- Comment this while using stored proc
+            matchingPerson.PersonName = personUpdateRequest.PersonName;
             matchingPerson.Email = personUpdateRequest.Email;
             matchingPerson.DateOfBirth = personUpdateRequest.DateOfBirth;
             matchingPerson.Gender = personUpdateRequest.Gender.ToString();
             matchingPerson.CountryID = personUpdateRequest.CountryID;
             matchingPerson.Address = personUpdateRequest.Address;
-            matchingPerson.ReceiveNewsLetters = personUpdateRequest.ReceiveNewsLetters;*/
+            matchingPerson.ReceiveNewsLetters = personUpdateRequest.ReceiveNewsLetters;
 
-            await _db.sp_UpdatePersonAsync(personUpdateRequest.ToPerson());
-
-/*            _db.SaveChanges();
+/*            await _db.sp_UpdatePersonAsync(personUpdateRequest.ToPerson());
 */
+            _db.SaveChanges();
+
             return matchingPerson.ToPersonResponse();
         }
 
@@ -227,11 +228,11 @@ namespace Services
             if(person == null)
                 return false;
 
-            /*_db.Persons.Remove(person);
-            _db.SaveChanges();*/
+            _db.Persons.Remove(person);
+            _db.SaveChanges();
 
-            await _db.sp_DeletePersonAsync(person);
-
+/*            await _db.sp_DeletePersonAsync(person);
+*/
             return true;
 
         }
