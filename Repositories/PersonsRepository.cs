@@ -49,12 +49,19 @@ namespace Repositories
 
         public async Task<Person> UpdatePerson(Person person)
         {
-            Person? matchingPerson = await _db.Persons.Include("Country")
+            // Load Person with related Country entity
+            Person? matchingPerson = await _db.Persons
+                .Include("Country")  // Assuming "Country" is the navigation property
                 .FirstOrDefaultAsync(temp => temp.PersonID == person.PersonID);
 
-            if (matchingPerson != null)
+            if (matchingPerson == null)
+            {
+                // Handle the case where the person to update is not found
+                // You might want to throw an exception or return an appropriate response
                 return null;
+            }
 
+            // Update Person properties
             matchingPerson.PersonName = person.PersonName;
             matchingPerson.Email = person.Email;
             matchingPerson.DateOfBirth = person.DateOfBirth;
@@ -63,9 +70,11 @@ namespace Repositories
             matchingPerson.Address = person.Address;
             matchingPerson.ReceiveNewsLetters = person.ReceiveNewsLetters;
 
+            // Save changes to the database
             int countUpdated = await _db.SaveChangesAsync();
 
             return matchingPerson;
         }
+        
     }
 }
