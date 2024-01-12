@@ -41,7 +41,7 @@ namespace CRUDXunitTest.Controllers
             ViewBag.CurrentSearchString = searchString;
 
             //Order Operation
-            List<PersonResponse> sortedPersons = _personsService.GetSortedPersons(persons, sortBy, sortOrder);
+            List<PersonResponse> sortedPersons = await _personsService.GetSortedPersons(persons, sortBy, sortOrder);
             ViewBag.CurrentSortBy = sortBy;
             ViewBag.CurrentSortOrder = sortOrder.ToString();
 

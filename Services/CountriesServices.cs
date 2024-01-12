@@ -28,7 +28,9 @@ namespace Services
             if(countryAddRequest.CountryName == null)
                 throw new ArgumentException(nameof(countryAddRequest.CountryName));
 
-            if (_countriesRepository.GetCountryByName(countryAddRequest.CountryName)!=null)
+            Country? countryfromrepo =await _countriesRepository.GetCountryByName(countryAddRequest.CountryName);
+
+            if (countryfromrepo!=null)
             {
                 throw new ArgumentException("Country name already exists!");
             }

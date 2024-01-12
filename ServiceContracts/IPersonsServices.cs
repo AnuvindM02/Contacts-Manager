@@ -14,7 +14,7 @@ namespace ServiceContracts
         Task<List<PersonResponse>> GetAllPersons();
         Task<PersonResponse?> GetPersonByPersonId(Guid? PersonId);
         Task<List<PersonResponse>> GetFilteredPersons(string searchBy, string? searchString);
-        List<PersonResponse> GetSortedPersons(List<PersonResponse> allPersons, string? sortBy, SortOrderOptions sortOrder);
+        Task <List<PersonResponse>> GetSortedPersons(List<PersonResponse> allPersons, string? sortBy, SortOrderOptions sortOrder);
         Task<PersonResponse> UpdatePerson(PersonUpdateRequest? personUpdateRequest);
         Task<bool> DeletePerson(Guid? PersonId);
         /// <summary>
