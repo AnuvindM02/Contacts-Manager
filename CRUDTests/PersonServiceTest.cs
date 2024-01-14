@@ -17,6 +17,8 @@ using FluentAssertions;
 using Moq;
 using RepositoryContracts;
 using System.Linq.Expressions;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace CRUDTests
 {
@@ -29,6 +31,9 @@ namespace CRUDTests
         private readonly Mock<IPersonsRepository> _personsRepositoryMock;
         private readonly IPersonsRepository _personsRepository;
 
+        private readonly ILogger<PersonsServices> _logger;
+        private readonly IDiagnosticContext _diagnosticContext;
+
 
         public PersonServiceTest(ITestOutputHelper testOutputHelper)
         {
@@ -39,18 +44,22 @@ namespace CRUDTests
             _personsRepository = _personsRepositoryMock.Object;
 
             //Mocking DBContext
-           /* var countriesInitialData = new List<Country>() { };
-            var personsInitialData = new List<Person>() { };
+            /* var countriesInitialData = new List<Country>() { };
+             var personsInitialData = new List<Person>() { };
 
-            DbContextMock<ApplicationDbContext> dbContextMock = new DbContextMock<ApplicationDbContext>(
-                new DbContextOptionsBuilder<ApplicationDbContext>().Options);
+             DbContextMock<ApplicationDbContext> dbContextMock = new DbContextMock<ApplicationDbContext>(
+                 new DbContextOptionsBuilder<ApplicationDbContext>().Options);
 
-            ApplicationDbContext dbContext = dbContextMock.Object;
-            dbContextMock.CreateDbSetMock(temp => temp.Countries, countriesInitialData);
-            dbContextMock.CreateDbSetMock(temp => temp.Persons, personsInitialData);*/
+             ApplicationDbContext dbContext = dbContextMock.Object;
+             dbContextMock.CreateDbSetMock(temp => temp.Countries, countriesInitialData);
+             dbContextMock.CreateDbSetMock(temp => temp.Persons, personsInitialData);*/
+            var diagnosticContextMock = new Mock<IDiagnosticContext>();
+            _diagnosticContext = diagnosticContextMock.Object;
 
-            _personsServices = new PersonsServices(_personsRepository);
+            var logger = new Mock<ILogger<PersonsServices>>();
+            _logger = logger.Object;
 
+            _personsServices = new PersonsServices(_personsRepository,_logger,_diagnosticContext);
             //XUnit test output helper
             _testOutputHelper = testOutputHelper;
         }

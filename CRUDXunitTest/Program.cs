@@ -4,8 +4,20 @@ using Microsoft.EntityFrameworkCore;
 using Entities;
 using RepositoryContracts;
 using Repositories;
+using Serilog;
+using Serilog.Sinks;
 
 var builder = WebApplication.CreateBuilder(args);
+
+//Serilog
+builder.Host.UseSerilog((HostBuilderContext context,IServiceProvider services,
+    LoggerConfiguration loggerConfiguration) =>
+{
+    loggerConfiguration.ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services);
+});
+
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<ICountriesServices, CountriesServices>();
 builder.Services.AddScoped<IPersonsServices, PersonsServices>();
@@ -18,6 +30,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration["ConnectionStrings:DefaultConnection"]);
 });
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 if (builder.Environment.IsDevelopment())
 {

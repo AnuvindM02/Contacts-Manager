@@ -31,5 +31,10 @@ namespace Entities
         [ForeignKey(nameof(CountryID))]
         public virtual Country? Country { get; set; }
 
+        public override string ToString()
+        {
+            return $"Person ID : {PersonID}, Person Name : {PersonName}, Email : {Email}, Address : {Address}, Gender : {Gender}, Date of birth : {DateOfBirth}";
+        }
+
     }
 }

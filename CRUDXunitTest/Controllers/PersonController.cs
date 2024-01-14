@@ -14,17 +14,21 @@ namespace CRUDXunitTest.Controllers
     {
         private readonly ICountriesServices _countriesService;
         private readonly IPersonsServices _personsService;
+        private readonly ILogger<PersonController> _logger;
 
-        public PersonController(ICountriesServices countriesService, IPersonsServices personsService)
+        public PersonController(ICountriesServices countriesService, IPersonsServices personsService,ILogger<PersonController> logger)
         {
             _countriesService = countriesService;
             _personsService = personsService;
+            _logger = logger;
         }
 
         [Route("[action]")]
         [Route("/")]
         public async Task<IActionResult> Index(string searchBy, string? searchString, string sortBy = nameof(PersonResponse.PersonName),SortOrderOptions sortOrder = SortOrderOptions.ASC)
         {
+            _logger.LogInformation("Index action method of PersonsController");
+
             ViewBag.SearchFields = new Dictionary<string, string>()
             {
                 { nameof(PersonResponse.PersonName), "Person Name" },
