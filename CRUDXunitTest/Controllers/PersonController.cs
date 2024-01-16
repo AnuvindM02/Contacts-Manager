@@ -1,4 +1,10 @@
-﻿using Entities;
+﻿using ContactsManager.Filters;
+using ContactsManager.Filters.ActionFilters;
+using ContactsManager.Filters.AuthorizationFilter;
+using ContactsManager.Filters.ExceptionFilter;
+using ContactsManager.Filters.ResourceFilters;
+using ContactsManager.Filters.ResultFilters;
+using Entities;
 using Entities.Enums;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +16,9 @@ using ServiceContracts.DTO;
 namespace CRUDXunitTest.Controllers
 {
     [Route("[controller]")]
+    [TypeFilter(typeof(HandleExceptionFilter))]
+    [TypeFilter(typeof(PersonsAlwaysRunResultFilter))] //To test if action methods with skip filter attribute skip this
+    [ResponseHeaderFilterFactory("X-Key","X-Value")]
     public class PersonController : Controller
     {
         private readonly ICountriesServices _countriesService;
@@ -23,38 +32,29 @@ namespace CRUDXunitTest.Controllers
             _logger = logger;
         }
 
+        [ServiceFilter(typeof(PersonsListActionFilter))]
+        [ResponseHeaderFilterFactory("My-Key", "My-Value")]
+        [TypeFilter(typeof(PersonsListResultFilter))]
+        [SkipFilter]//Ignores filters, the if condition should be implemented in the intended filter to skip
         [Route("[action]")]
         [Route("/")]
         public async Task<IActionResult> Index(string searchBy, string? searchString, string sortBy = nameof(PersonResponse.PersonName),SortOrderOptions sortOrder = SortOrderOptions.ASC)
         {
             _logger.LogInformation("Index action method of PersonsController");
 
-            ViewBag.SearchFields = new Dictionary<string, string>()
-            {
-                { nameof(PersonResponse.PersonName), "Person Name" },
-                { nameof(PersonResponse.Email), "Email" },
-                { nameof(PersonResponse.DateOfBirth), "Date of Birth" },
-                { nameof(PersonResponse.Gender), "Gender" },
-                { nameof(PersonResponse.CountryID), "Country" },
-                { nameof(PersonResponse.Address), "Address" }
-            };
-
             //Search Operation
             List<PersonResponse> persons = await _personsService.GetFilteredPersons(searchBy, searchString);
-            ViewBag.CurrentSearchBy = searchBy;
-            ViewBag.CurrentSearchString = searchString;
-
+            
             //Order Operation
             List<PersonResponse> sortedPersons = await _personsService.GetSortedPersons(persons, sortBy, sortOrder);
-            ViewBag.CurrentSortBy = sortBy;
-            ViewBag.CurrentSortOrder = sortOrder.ToString();
-
-
+            
             return View(sortedPersons);
         }
 
         [HttpGet]
         [Route("[action]")]
+        [ResponseHeaderFilterFactory("Y-Key","Y-Value")]
+
         public async Task<IActionResult> Create()
         {
             List<CountryResponse> countries = await _countriesService.GetAllCountries();
@@ -66,27 +66,20 @@ namespace CRUDXunitTest.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> Create(PersonAddRequest personAddRequest)
+        [TypeFilter(typeof(PersonCreateEditActionFilter))]
+        [TypeFilter(typeof(FeatureDisabledResourceFilter),Arguments =new object[] {false})]
+        public async Task<IActionResult> Create(PersonAddRequest personRequest)
         {
-            if (!ModelState.IsValid)
-            {
-                List<CountryResponse> countries = await _countriesService.GetAllCountries();
-                ViewBag.Countries = countries.Select(temp =>
-                            new SelectListItem() { Text = temp.CountryName, Value = temp.CountryId.ToString() });
-
-                ViewBag.Errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-                return View(personAddRequest);
-            }
-
             //call the service method
-            PersonResponse personResponse = await _personsService.AddPerson(personAddRequest);
+            PersonResponse personResponse = await _personsService.AddPerson(personRequest);
 
-            //navigate to Index() action method (it makes another get request to "persons/index"
+            //navigate to Index() action method (it makes another get request to "persons/index")
             return RedirectToAction("Index", "Person");
         }
 
         [HttpGet]
         [Route("[action]/{PersonID}")]
+        [TypeFilter(typeof(TokenResultFilter))]
         public async Task<IActionResult> Edit(Guid PersonID)
         {
             PersonResponse? personResponse = await _personsService.GetPersonByPersonId(PersonID);
@@ -107,29 +100,21 @@ namespace CRUDXunitTest.Controllers
 
         [HttpPost]
         [Route("[action]/{PersonId}")]
-        public async Task<IActionResult> Edit(PersonUpdateRequest personUpdateRequest)
+        [TypeFilter(typeof(PersonCreateEditActionFilter))]
+        [TypeFilter(typeof(TokenAuthorizationFilter))]
+        public async Task<IActionResult> Edit(PersonUpdateRequest personRequest)
         {
-            PersonResponse? personResponse = await _personsService.GetPersonByPersonId(personUpdateRequest.PersonID);
+            PersonResponse? personResponse = await _personsService.GetPersonByPersonId(personRequest.PersonID);
 
             if (personResponse == null)
             {
                 return RedirectToAction("Index");
             }
 
-            if (ModelState.IsValid)
-            {
-                PersonResponse updatedPerson = await _personsService.UpdatePerson(personUpdateRequest);
+            //Filter handles the invalid model state(and it won't reach this action method),if valid, code below works
+                PersonResponse updatedPerson = await _personsService.UpdatePerson(personRequest);
                 return RedirectToAction("Index");
-            }
-            else
-            {
-                List<CountryResponse> countries = await _countriesService.GetAllCountries();
-                ViewBag.Countries = countries.Select(temp =>
-                new SelectListItem() { Text = temp.CountryName, Value = temp.CountryId.ToString() });
-
-                ViewBag.Errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-                return View();
-            }
+            
         }
 
         [HttpGet]

@@ -6,6 +6,7 @@ using RepositoryContracts;
 using Repositories;
 using Serilog;
 using Serilog.Sinks;
+using ContactsManager.Filters.ActionFilters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,12 +19,28 @@ builder.Host.UseSerilog((HostBuilderContext context,IServiceProvider services,
 });
 
 
-builder.Services.AddControllersWithViews();
+
 builder.Services.AddScoped<ICountriesServices, CountriesServices>();
 builder.Services.AddScoped<IPersonsServices, PersonsServices>();
 
 builder.Services.AddScoped<IPersonsRepository, PersonsRepository>();
 builder.Services.AddScoped<ICountriesRepository, CountriesRepository>();
+
+builder.Services.AddTransient<PersonsListActionFilter>();
+builder.Services.AddTransient<ResponseHeaderActionFilter>();//For IFilterFactory
+
+builder.Services.AddControllersWithViews(options =>
+{
+    //Calling filter globally
+    var logger = builder.Services.BuildServiceProvider()
+    .GetRequiredService<ILogger<ResponseHeaderActionFilter>>();
+
+    options.Filters.Add(new ResponseHeaderActionFilter(logger)
+    {
+        Key = "Global_Key",
+        Value = "Global_Value",
+    });
+});
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
