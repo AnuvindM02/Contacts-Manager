@@ -7,6 +7,7 @@ using Repositories;
 using Serilog;
 using Serilog.Sinks;
 using ContactsManager.Filters.ActionFilters;
+using ContactsManager;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,34 +19,8 @@ builder.Host.UseSerilog((HostBuilderContext context,IServiceProvider services,
     .ReadFrom.Services(services);
 });
 
+builder.Services.ConfigureServices(builder.Configuration);
 
-
-builder.Services.AddScoped<ICountriesServices, CountriesServices>();
-builder.Services.AddScoped<IPersonsServices, PersonsServices>();
-
-builder.Services.AddScoped<IPersonsRepository, PersonsRepository>();
-builder.Services.AddScoped<ICountriesRepository, CountriesRepository>();
-
-builder.Services.AddTransient<PersonsListActionFilter>();
-builder.Services.AddTransient<ResponseHeaderActionFilter>();//For IFilterFactory
-
-builder.Services.AddControllersWithViews(options =>
-{
-    //Calling filter globally
-    var logger = builder.Services.BuildServiceProvider()
-    .GetRequiredService<ILogger<ResponseHeaderActionFilter>>();
-
-    options.Filters.Add(new ResponseHeaderActionFilter(logger)
-    {
-        Key = "Global_Key",
-        Value = "Global_Value",
-    });
-});
-
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration["ConnectionStrings:DefaultConnection"]);
-});
 var app = builder.Build();
 
 app.UseSerilogRequestLogging();
