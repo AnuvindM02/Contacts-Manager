@@ -8,6 +8,7 @@ using Serilog;
 using Serilog.Sinks;
 using ContactsManager.Filters.ActionFilters;
 using ContactsManager;
+using ContactsManager.MiddleWare;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,7 +30,11 @@ if (builder.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
 }
-//Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=PersonsDatabase;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False
+else
+{
+    app.UseExceptionHandler("/Error");
+    app.UseExceptionHandlingMiddleware();
+}
 if (builder.Environment.IsEnvironment("Test") == false)
     Rotativa.AspNetCore.RotativaConfiguration.Setup("wwwroot", wkhtmltopdfRelativePath: "Rotativa");
 

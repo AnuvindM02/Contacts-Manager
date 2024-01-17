@@ -57,7 +57,6 @@ namespace Repositories
             if (matchingPerson == null)
             {
                 // Handle the case where the person to update is not found
-                // You might want to throw an exception or return an appropriate response
                 return null;
             }
 
