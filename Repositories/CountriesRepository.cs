@@ -16,10 +16,10 @@ namespace Repositories
         {
             _db = db;
         }
-        public async Task<Country> AddCountry(Country country)
+        public Country AddCountry(Country country)
         {
             _db.Countries.Add(country);
-            await _db.SaveChangesAsync();
+            _db.SaveChangesAsync();
             return country;
         }
 

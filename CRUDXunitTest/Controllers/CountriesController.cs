@@ -7,11 +7,11 @@ namespace CRUDXunitTest.Controllers
     [Route("[controller]")]
     public class CountriesController : Controller
     {
-        private readonly ICountriesServices _countriesServices;
+        private readonly ICountriesUploaderServices _countriesUploaderServices;
 
-        public CountriesController(ICountriesServices countriesServices)
+        public CountriesController(ICountriesUploaderServices countriesUploaderServices)
         {
-            _countriesServices = countriesServices;
+            _countriesUploaderServices = countriesUploaderServices;
         }
 
         [Route("[action]")]
@@ -35,7 +35,7 @@ namespace CRUDXunitTest.Controllers
                 return View();
             }
 
-            int countriesAdded = await _countriesServices.UploadCountriesFromExcelFile(excelFile);
+            int countriesAdded = await _countriesUploaderServices.UploadCountriesFromExcelFile(excelFile);
 
             ViewBag.Message = $"{countriesAdded} countries added";
             return View();

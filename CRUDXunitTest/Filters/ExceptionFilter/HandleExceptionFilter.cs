@@ -21,14 +21,15 @@ namespace ContactsManager.Filters.ExceptionFilter
                 ,nameof(HandleExceptionFilter),nameof(OnException)
                 ,context.Exception.GetType().ToString(),context.Exception.Message);
             
-            if(_hostEnvironment.IsDevelopment())
+            //Use this to get error message without developer exception page
+            /*if(_hostEnvironment.IsDevelopment())
             {
                 context.Result = new ContentResult()
                 {
                     Content = context.Exception.Message,
                     StatusCode = 500
                 };
-            }
+            }*/
             
         }
     }

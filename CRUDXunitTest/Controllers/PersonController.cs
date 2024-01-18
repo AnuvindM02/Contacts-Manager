@@ -21,14 +21,24 @@ namespace CRUDXunitTest.Controllers
     [ResponseHeaderFilterFactory("X-Key","X-Value")]
     public class PersonController : Controller
     {
-        private readonly ICountriesServices _countriesService;
-        private readonly IPersonsServices _personsService;
+        private readonly ICountriesGetterServices _countriesService;
+        private readonly IPersonsGetterServices _personsGetterService;
+        private readonly IPersonsAdderServices _personsAdderService;
+        private readonly IPersonsDeleterServices _personsDeleterService;
+        private readonly IPersonsSorterServices _personsSorterService;
+        private readonly IPersonsUpdaterServices _personsUpdaterService;
+
         private readonly ILogger<PersonController> _logger;
 
-        public PersonController(ICountriesServices countriesService, IPersonsServices personsService,ILogger<PersonController> logger)
+        public PersonController(ICountriesGetterServices countriesService, IPersonsGetterServices personsGetterService,IPersonsAdderServices personsAdderServices,IPersonsDeleterServices personsDeleterServices,
+            IPersonsSorterServices personsSorterServices,IPersonsUpdaterServices personsUpdaterServices,ILogger<PersonController> logger)
         {
             _countriesService = countriesService;
-            _personsService = personsService;
+            _personsGetterService = personsGetterService;
+            _personsAdderService = personsAdderServices;
+            _personsDeleterService = personsDeleterServices;
+            _personsSorterService = personsSorterServices;
+            _personsUpdaterService = personsUpdaterServices;
             _logger = logger;
         }
 
@@ -43,10 +53,10 @@ namespace CRUDXunitTest.Controllers
             _logger.LogInformation("Index action method of PersonsController");
 
             //Search Operation
-            List<PersonResponse> persons = await _personsService.GetFilteredPersons(searchBy, searchString);
+            List<PersonResponse> persons = await _personsGetterService.GetFilteredPersons(searchBy, searchString);
             
             //Order Operation
-            List<PersonResponse> sortedPersons = await _personsService.GetSortedPersons(persons, sortBy, sortOrder);
+            List<PersonResponse> sortedPersons = await _personsSorterService.GetSortedPersons(persons, sortBy, sortOrder);
             
             return View(sortedPersons);
         }
@@ -71,7 +81,7 @@ namespace CRUDXunitTest.Controllers
         public async Task<IActionResult> Create(PersonAddRequest personRequest)
         {
             //call the service method
-            PersonResponse personResponse = await _personsService.AddPerson(personRequest);
+            PersonResponse personResponse = await _personsAdderService.AddPerson(personRequest);
 
             //navigate to Index() action method (it makes another get request to "persons/index")
             return RedirectToAction("Index", "Person");
@@ -82,7 +92,7 @@ namespace CRUDXunitTest.Controllers
         [TypeFilter(typeof(TokenResultFilter))]
         public async Task<IActionResult> Edit(Guid PersonID)
         {
-            PersonResponse? personResponse = await _personsService.GetPersonByPersonId(PersonID);
+            PersonResponse? personResponse = await _personsGetterService.GetPersonByPersonId(PersonID);
             if(personResponse == null)
             {
                 return RedirectToAction("Index");
@@ -104,7 +114,7 @@ namespace CRUDXunitTest.Controllers
         [TypeFilter(typeof(TokenAuthorizationFilter))]
         public async Task<IActionResult> Edit(PersonUpdateRequest personRequest)
         {
-            PersonResponse? personResponse = await _personsService.GetPersonByPersonId(personRequest.PersonID);
+            PersonResponse? personResponse = await _personsGetterService.GetPersonByPersonId(personRequest.PersonID);
 
             if (personResponse == null)
             {
@@ -112,7 +122,7 @@ namespace CRUDXunitTest.Controllers
             }
 
             //Filter handles the invalid model state(and it won't reach this action method),if valid, code below works
-                PersonResponse updatedPerson = await _personsService.UpdatePerson(personRequest);
+                PersonResponse updatedPerson = await _personsUpdaterService.UpdatePerson(personRequest);
                 return RedirectToAction("Index");
             
         }
@@ -121,7 +131,7 @@ namespace CRUDXunitTest.Controllers
         [Route("[action]/{PersonID}")]
         public async Task<IActionResult> Delete(Guid PersonID)
         {
-            PersonResponse? personResponse = await _personsService.GetPersonByPersonId(PersonID);
+            PersonResponse? personResponse = await _personsGetterService.GetPersonByPersonId(PersonID);
             if (personResponse == null)
             {
                 return RedirectToAction("Index");
@@ -134,11 +144,11 @@ namespace CRUDXunitTest.Controllers
         [Route("[action]/{personId}")]
         public async Task<IActionResult> Delete(PersonUpdateRequest personUpdateRequest)
         {
-            PersonResponse? personResponse = await _personsService.GetPersonByPersonId(personUpdateRequest.PersonID);
+            PersonResponse? personResponse = await _personsGetterService.GetPersonByPersonId(personUpdateRequest.PersonID);
             if (personResponse == null)
                 return RedirectToAction("Index");
 
-            await _personsService.DeletePerson(personUpdateRequest.PersonID);
+            await _personsDeleterService.DeletePerson(personUpdateRequest.PersonID);
             return RedirectToAction("Index");
 
         }
@@ -147,7 +157,7 @@ namespace CRUDXunitTest.Controllers
         public async Task<IActionResult> PersonPDF()
         {
             //Get list of persons
-            List<PersonResponse> persons = await _personsService.GetAllPersons();
+            List<PersonResponse> persons = await _personsGetterService.GetAllPersons();
 
             //Return view as pdf
             return new ViewAsPdf("PersonsPDF", persons, ViewData)
@@ -160,14 +170,14 @@ namespace CRUDXunitTest.Controllers
         [Route("PersonCSV")]
         public async Task<IActionResult> PersonCSV()
         {
-            MemoryStream memoryStream = await _personsService.GetPersonsCSV();
+            MemoryStream memoryStream = await _personsGetterService.GetPersonsCSV();
             return File(memoryStream, "application/octet-stream", "persons.csv");
         }
 
         [Route("PersonExcel")]
         public async Task<IActionResult> PersonExcel()
         {
-            MemoryStream memoryStream = await _personsService.GetPersonsExcelSheet();
+            MemoryStream memoryStream = await _personsGetterService.GetPersonsExcelSheet();
             return File(memoryStream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "persons.xlsx");
         }
     }

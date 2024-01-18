@@ -8,12 +8,12 @@ using RepositoryContracts;
 
 namespace Services
 {
-    public class CountriesServices : ICountriesServices
+    public class CountriesUploaderServices : ICountriesUploaderServices
     {
 
         private readonly ICountriesRepository _countriesRepository;
 
-        public CountriesServices(ICountriesRepository countriesRepository)
+        public CountriesUploaderServices(ICountriesRepository countriesRepository)
         {
 
             _countriesRepository = countriesRepository;
@@ -40,7 +40,7 @@ namespace Services
             country.CountryID = Guid.NewGuid();
 
 
-            await _countriesRepository.AddCountry(country);
+            _countriesRepository.AddCountry(country);
 
             return country.ToCountryResponse();
             
@@ -85,10 +85,10 @@ namespace Services
                     if (cellValue != null)
                     {
                         string countryName = cellValue;
-                        if (_countriesRepository.GetCountryByName(countryName) == null)
+                        if (_countriesRepository.GetCountryByName(countryName) != null)
                         {
                             Country country= new Country() { CountryName = countryName };
-                            await _countriesRepository.AddCountry(country);
+                            _countriesRepository.AddCountry(country);
                             countriesInserted++;
                         }
                     }

@@ -12,8 +12,16 @@ namespace ContactsManager
     {
         public static IServiceCollection ConfigureServices(this IServiceCollection services,IConfiguration configuration)
         {
-            services.AddScoped<ICountriesServices, CountriesServices>();
-            services.AddScoped<IPersonsServices, PersonsServices>();
+            services.AddScoped<ICountriesGetterServices, CountriesGetterServices>();
+            services.AddScoped<ICountriesAdderServices, CountriesAdderServices>();
+            services.AddScoped<ICountriesUploaderServices, CountriesUploaderServices>();
+
+
+            services.AddScoped<IPersonsGetterServices, PersonsGetterServices>();
+            services.AddScoped<IPersonsAdderServices, PersonsAdderServices>();
+            services.AddScoped<IPersonsDeleterServices, PersonsDeleterServices>();
+            services.AddScoped<IPersonsSorterServices, PersonsSorterServices>();
+            services.AddScoped<IPersonsUpdaterServices, PersonsUpdaterServices>();
 
             services.AddScoped<IPersonsRepository, PersonsRepository>();
             services.AddScoped<ICountriesRepository, CountriesRepository>();
@@ -37,7 +45,10 @@ namespace ContactsManager
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(configuration["ConnectionStrings:DefaultConnection"]);
+                options.EnableSensitiveDataLogging();
             });
+            
+            
 
             return services;
         }

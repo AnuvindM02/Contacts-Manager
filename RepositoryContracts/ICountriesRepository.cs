@@ -9,7 +9,7 @@ namespace RepositoryContracts
 {
     public interface ICountriesRepository
     {
-        Task<Country> AddCountry(Country country);
+        Country AddCountry(Country country);
 
         Task<List<Country>> GetAllCountries();
 

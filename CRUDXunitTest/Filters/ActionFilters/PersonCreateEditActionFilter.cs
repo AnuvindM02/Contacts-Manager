@@ -9,9 +9,9 @@ namespace ContactsManager.Filters.ActionFilters
 {
     public class PersonCreateEditActionFilter : IAsyncActionFilter
     {
-        private readonly ICountriesServices _countriesServices;
+        private readonly ICountriesGetterServices _countriesServices;
 
-        public PersonCreateEditActionFilter(ICountriesServices countriesServices)
+        public PersonCreateEditActionFilter(ICountriesGetterServices countriesServices)
         {
             _countriesServices = countriesServices;
         }
