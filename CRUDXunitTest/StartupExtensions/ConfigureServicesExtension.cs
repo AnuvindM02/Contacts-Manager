@@ -17,11 +17,14 @@ namespace ContactsManager
             services.AddScoped<ICountriesUploaderServices, CountriesUploaderServices>();
 
 
-            services.AddScoped<IPersonsGetterServices, PersonsGetterServices>();
+            services.AddScoped<IPersonsGetterServices, PersonGetterServiceFewExcelFields>();
+            //Injects in the PersonGetterServiceFewExcelFields class
+            services.AddScoped<PersonsGetterServices, PersonsGetterServices>();
             services.AddScoped<IPersonsAdderServices, PersonsAdderServices>();
             services.AddScoped<IPersonsDeleterServices, PersonsDeleterServices>();
             services.AddScoped<IPersonsSorterServices, PersonsSorterServices>();
             services.AddScoped<IPersonsUpdaterServices, PersonsUpdaterServices>();
+
 
             services.AddScoped<IPersonsRepository, PersonsRepository>();
             services.AddScoped<ICountriesRepository, CountriesRepository>();
