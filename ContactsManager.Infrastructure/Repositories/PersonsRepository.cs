@@ -22,8 +22,7 @@ namespace Repositories
 
         public async Task<bool> DeletePersonById(Guid PersonID)
         {
-            Person? person = _db.Persons.FirstOrDefault(temp => temp.PersonID == PersonID);
-            await _db.sp_DeletePersonAsync(person);
+            _db.Persons.RemoveRange(_db.Persons.Where(temp => temp.PersonID == PersonID));
             int rowsDeleted = await _db.SaveChangesAsync();
 
             return rowsDeleted > 0;

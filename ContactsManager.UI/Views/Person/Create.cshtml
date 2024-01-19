@@ -3,10 +3,23 @@
     ViewBag.Title = "Create Person";
 }
 
-<a asp-controller="Person" asp-action="Index" class="link-hover" style="color:white">Back to Persons List</a>
-<h2>Create Person</h2>
+<div class="flex">
+    <div class="flex-1">
+        <div class="text-grey">
+            <span>Contacts</span>
+            <i class="fa-solid fa-caret-right"></i>
+            <span class="text-grey">Persons</span>
+            <i class="fa-solid fa-caret-right"></i>
+            <span class="text-grey">Create</span>
+        </div>
+    </div>
+</div>
 
-<div class="center-box">
+<div class="form-container">
+
+    <a asp-controller="Person" asp-action="Index" class="link-hover">Back to Persons List</a>
+    <h2 class="text-large">Create Person</h2>
+
     <form asp-controller="Person" asp-action="Create" method="post">
 
         @*PersonName*@
@@ -16,7 +29,7 @@
             </div>
             <div class="flex-1">
                 <input asp-for="PersonName" class="form-input" />
-                <span asp-validation-for="PersonName" class="myValidation"></span>
+                <span asp-validation-for="PersonName" class="text-red"></span>
             </div>
         </div>
 
@@ -28,8 +41,7 @@
             </div>
             <div class="flex-1">
                 <input asp-for="Email" class="form-input" />
-                <span asp-validation-for="Email" class="myValidation"></span>
-
+                <span asp-validation-for="Email" class="text-red"></span>
             </div>
         </div>
 
@@ -39,9 +51,8 @@
                 <label asp-for="DateOfBirth" class="form-label pt">Date of Birth</label>
             </div>
             <div class="flex-1">
-                <input asp-for="DateOfBirth" class="form-input" />
-                <span asp-validation-for="DateOfBirth" class="myValidation"></span>
-
+                <input type="date" asp-for="DateOfBirth" class="form-input" />
+                <span asp-validation-for="DateOfBirth" class="text-red"></span>
             </div>
         </div>
 
@@ -54,14 +65,12 @@
                 @{
                     string[] genders = (string[])Enum.GetNames(typeof(Gender));
                 }
-
-                @foreach(string gender in genders)
+                @foreach (string gender in genders)
                 {
-                    <input type="radio" asp-for="Gender" value="@gender"/>
+                    <input type="radio" asp-for="Gender" value="@gender" id="@gender" />
                     <label for="@gender">@gender</label>
                 }
-                <br/>
-                <span asp-validation-for="Gender" class="myValidation"></span>
+                <span asp-validation-for="Gender" class="text-red"></span>
             </div>
         </div>
 
@@ -72,9 +81,9 @@
             </div>
             <div class="flex-1">
                 <select asp-for="CountryID" class="form-input" asp-items="@ViewBag.Countries">
-                    <option value="">Please select</option>
+                    <option value="">Please Select</option>
                 </select>
-                <span asp-validation-for="CountryID" class="myValidation"></span>
+                <span asp-validation-for="CountryID" class="text-red"></span>
             </div>
         </div>
 
@@ -86,7 +95,7 @@
             </div>
             <div class="flex-1">
                 <textarea asp-for="Address" class="form-input"></textarea>
-                <span asp-validation-for="Address" class="myValidation"></span>
+                <span asp-validation-for="Address" class="text-red"></span>
             </div>
         </div>
 
@@ -97,7 +106,7 @@
             <div class="flex-1">
                 <input asp-for="ReceiveNewsLetters" value="true" />
                 <label asp-for="ReceiveNewsLetters" class="form-label">Receive News Letters</label>
-                <span asp-validation-for="ReceiveNewsLetters" class="myValidation"></span>
+                <span asp-validation-for="ReceiveNewsLetters" class="text-red"></span>
             </div>
         </div>
 
@@ -106,10 +115,9 @@
             <div class="w-25">
             </div>
             <div class="flex-1">
-                <button class="mybutton">Create</button>
+                <button class="button button-green-back">Create</button>
 
-                <div asp-validation-summary="All" class="myValidation"></div>
-
+                <div asp-validation-summary="All" class="text-red"></div>
 
                 @if (ViewBag.Errors != null)
                 {
