@@ -1,5 +1,8 @@
-﻿using ContactsManager.Filters.ActionFilters;
+﻿using ContactsManager.Core.Domain.IdentityEntities;
+using ContactsManager.Filters.ActionFilters;
 using Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Repositories;
 using RepositoryContracts;
@@ -50,8 +53,12 @@ namespace ContactsManager
                 options.UseSqlServer(configuration["ConnectionStrings:DefaultConnection"]);
                 options.EnableSensitiveDataLogging();
             });
-            
-            
+
+            services.AddIdentity<ApplicationUser,ApplicationRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders()
+                .AddUserStore<UserStore<ApplicationUser,ApplicationRole,ApplicationDbContext,Guid>>()
+                .AddRoleStore<RoleStore<ApplicationRole,ApplicationDbContext,Guid>>();
 
             return services;
         }

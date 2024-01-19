@@ -22,12 +22,34 @@
         <div class="navbar">
             <div class="navbar-brand">Contacts Manager</div>
             <ul>
+
                 <li>
                     <a asp-controller="Person" asp-action="Index">Persons</a>
                 </li>
                 <li>
                     <a asp-controller="Countries" asp-action="UploadFromExcel">Add Country</a>
                 </li>
+
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <li>
+                        <i class="fa-solid fa-user"></i>
+                        @User.Identity?.Name
+                    </li>
+                    <li>
+                        <a asp-controller="Countries" asp-action="Logout">Logout</a>
+                    </li>
+                }
+                else
+                {
+                    <li>
+                        <a asp-controller="Account" asp-action="Register">Register</a>
+                    </li>
+                    <li>
+                        <a asp-controller="Countries" asp-action="Login">Login</a>
+                    </li>                    
+                }
+ 
             </ul>
         </div>
 
