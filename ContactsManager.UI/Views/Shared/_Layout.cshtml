@@ -38,11 +38,11 @@
                                 else
                                 {
                                     <li>
-                                        <a asp-controller="Account" asp-action="Register">Register</a>
+                                        <a asp-controller="Account" asp-action="Register" class="@(ViewBag.CurrentUrl=="~/Account/Register" ? "nav-active" : "")">Register</a>
                                     </li>
 
                                     <li>
-                                        <a asp-controller="Account" asp-action="Login">Login</a>
+                                        <a asp-controller="Account" asp-action="Login" class="@(ViewBag.CurrentUrl=="~/Account/Login" ? "nav-active" : "")">Login</a>
                                     </li>
                                 }
                             </ul>
@@ -59,8 +59,8 @@
 
                 <ul>
                     <li>
-                        <a asp-controller="Person" asp-action="Index">Persons</a>
-                        <a asp-controller="Countries" asp-action="UploadFromExcel">Upload Countries</a>
+                        <a asp-controller="Person" asp-action="Index" class="@(ViewBag.CurrentUrl=="~/Person/Index" ? "nav-active" : "")">Persons</a>
+                        <a asp-controller="Countries" asp-action="UploadFromExcel" class="@(ViewBag.CurrentUrl=="~/Countries/UploadFromExcel" ? "nav-active" : "")">Upload Countries</a>
                     </li>
                 </ul>
             </div>
