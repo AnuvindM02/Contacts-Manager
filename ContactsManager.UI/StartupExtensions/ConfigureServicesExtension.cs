@@ -1,6 +1,7 @@
 ﻿using ContactsManager.Core.Domain.IdentityEntities;
 using ContactsManager.Filters.ActionFilters;
 using Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -35,7 +36,7 @@ namespace ContactsManager
             services.AddTransient<PersonsListActionFilter>();
             services.AddTransient<ResponseHeaderActionFilter>();//For IFilterFactory
 
-            services.AddControllersWithViews(options =>
+            /*services.AddControllersWithViews(options =>
             {
                 //Calling filter globally
                 var logger = services.BuildServiceProvider()
@@ -46,7 +47,7 @@ namespace ContactsManager
                     Key = "Global_Key",
                     Value = "Global_Value",
                 });
-            });
+            });*/
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {
@@ -54,11 +55,29 @@ namespace ContactsManager
                 options.EnableSensitiveDataLogging();
             });
 
-            services.AddIdentity<ApplicationUser,ApplicationRole>()
+            services.AddIdentity<ApplicationUser,ApplicationRole>(options =>
+            {
+                options.Password.RequiredLength = 5;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireDigit = false;
+                options.Password.RequiredUniqueChars = 3;
+            })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders()
                 .AddUserStore<UserStore<ApplicationUser,ApplicationRole,ApplicationDbContext,Guid>>()
                 .AddRoleStore<RoleStore<ApplicationRole,ApplicationDbContext,Guid>>();
+
+            services.AddAuthorization(options =>
+            {
+                options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+            });
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "~/Account/Login";
+            });
 
             return services;
         }
