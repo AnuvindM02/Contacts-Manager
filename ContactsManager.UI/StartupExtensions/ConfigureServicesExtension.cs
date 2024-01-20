@@ -72,6 +72,14 @@ namespace ContactsManager
             services.AddAuthorization(options =>
             {
                 options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+
+                options.AddPolicy("NotAuthorized", policy =>
+                {
+                    policy.RequireAssertion(context =>
+                    {
+                        return !context.User.Identity.IsAuthenticated;//returning false block's the action method which uses "NotAuthenticated" attribute
+                    });               
+                });
             });
 
             services.ConfigureApplicationCookie(options =>
