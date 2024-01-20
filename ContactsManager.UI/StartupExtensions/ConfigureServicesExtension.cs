@@ -36,7 +36,7 @@ namespace ContactsManager
             services.AddTransient<PersonsListActionFilter>();
             services.AddTransient<ResponseHeaderActionFilter>();//For IFilterFactory
 
-            /*services.AddControllersWithViews(options =>
+            services.AddControllersWithViews(options =>
             {
                 //Calling filter globally
                 var logger = services.BuildServiceProvider()
@@ -47,7 +47,7 @@ namespace ContactsManager
                     Key = "Global_Key",
                     Value = "Global_Value",
                 });
-            });*/
+            });
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {
@@ -76,7 +76,7 @@ namespace ContactsManager
 
             services.ConfigureApplicationCookie(options =>
             {
-                options.LoginPath = "~/Account/Login";
+                options.LoginPath = "/Account/Login";
             });
 
             return services;

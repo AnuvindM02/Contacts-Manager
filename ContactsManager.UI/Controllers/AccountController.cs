@@ -1,20 +1,22 @@
 ﻿using ContactsManager.Core.Domain.IdentityEntities;
 using ContactsManager.Core.DTO;
 using CRUDXunitTest.Controllers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ContactsManager.UI.Controllers
 {
     [Route("[controller]/[action]")]
+    [AllowAnonymous]//This controller be accessed without authorization
     public class AccountController : Controller
     {
-        private readonly UserManager<ApplicationUser> _usermanager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public AccountController(UserManager<ApplicationUser> usermanager, SignInManager<ApplicationUser> signInManager)
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
         {
-            _usermanager = usermanager;
+            _userManager = userManager;
             _signInManager = signInManager;
         }
 
@@ -42,7 +44,7 @@ namespace ContactsManager.UI.Controllers
                 PersonName = registerDTO.PersonName
             };
 
-            IdentityResult result = await _usermanager.CreateAsync(user,registerDTO.Password);
+            IdentityResult result = await _userManager.CreateAsync(user,registerDTO.Password);
 
             if (result.Succeeded)
             {
@@ -66,7 +68,7 @@ namespace ContactsManager.UI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(LoginDTO loginDTO)
+        public async Task<IActionResult> Login(LoginDTO loginDTO,string? ReturnUrl)
         {
             if (!ModelState.IsValid)
             {
@@ -78,6 +80,10 @@ namespace ContactsManager.UI.Controllers
 
             if (result.Succeeded)
             {
+                if(!string.IsNullOrEmpty(ReturnUrl)&&Url.IsLocalUrl(ReturnUrl))
+                {
+                    return LocalRedirect(ReturnUrl);
+                }
                 return RedirectToAction(nameof(PersonController.Index), "Person");
             }
             else
@@ -91,6 +97,20 @@ namespace ContactsManager.UI.Controllers
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Login");
+        }
+
+        public async Task<IActionResult> IsEmailAlreadyRegistered(string email)
+        {
+
+            ApplicationUser user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return Json(true);
+            }
+            else
+            {
+                return Json(false);
+            }
         }
     }
 }
