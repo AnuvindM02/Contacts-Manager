@@ -72,7 +72,16 @@ namespace ContactsManager.UI.Controllers
                 }
                 else
                 {
-                    //Add user into default role
+                    //Add User Role
+                    if (await _roleManager.FindByNameAsync(UserTypeOptions.User.ToString()) is null)
+                    {
+                        ApplicationRole applicationRole = new ApplicationRole()
+                        {
+                            Name = UserTypeOptions.User.ToString()
+                        };
+                        await _roleManager.CreateAsync(applicationRole);
+                    }
+                    //Add user into user role
                     await _userManager.AddToRoleAsync(user, UserTypeOptions.User.ToString());
                 }
 
@@ -141,6 +150,7 @@ namespace ContactsManager.UI.Controllers
             return RedirectToAction("Login");
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> IsEmailAlreadyRegistered(string email)
         {
 

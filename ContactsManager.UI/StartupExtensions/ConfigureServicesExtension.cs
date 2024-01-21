@@ -4,6 +4,7 @@ using Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Repositories;
 using RepositoryContracts;
@@ -47,13 +48,14 @@ namespace ContactsManager
                     Key = "Global_Key",
                     Value = "Global_Value",
                 });
+                options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());//Adds [ValidateAntiForgeryToken] to every post method
             });
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(configuration["ConnectionStrings:DefaultConnection"]);
-                options.EnableSensitiveDataLogging();
-            });
+/*                options.EnableSensitiveDataLogging();
+*/            });
 
             services.AddIdentity<ApplicationUser,ApplicationRole>(options =>
             {
